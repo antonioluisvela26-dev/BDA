@@ -28,14 +28,32 @@ services:
     networks:
       - bigdata_net
 
+  mysql-sqoop:
+    image: mysql:8.0
+    container_name: mysql-sqoop
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ventas_db
+      MYSQL_USER: sqoopuser
+      MYSQL_PASSWORD: sqooppassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - bigdata_net
+
   namenode:
     image: apache/hadoop:3.4.0
     container_name: namenode
     hostname: namenode
+    user: root
+    command: ["/bin/sh", "-c", "/opt/hadoop/bin/hdfs namenode -format -force && /opt/hadoop/bin/hdfs namenode"]
     ports:
       - "9870:9870"
       - "9000:9000"
     environment:
+      - CORE-SITE.XML_fs.defaultFS=hdfs://namenode:9000
       - HDFS_NAMENODE_USER=root
       - HDFS_DATANODE_USER=root
     volumes:
@@ -47,9 +65,12 @@ services:
     image: apache/hadoop:3.4.0
     container_name: datanode
     hostname: datanode
+    user: root
+    command: ["/opt/hadoop/bin/hdfs", "datanode"]
     ports:
       - "9864:9864"
     environment:
+      - CORE-SITE.XML_fs.defaultFS=hdfs://namenode:9000
       - HDFS_NAMENODE_USER=root
       - HDFS_DATANODE_USER=root
     volumes:
@@ -129,6 +150,7 @@ services:
       - mongodb
     networks:
       - bigdata_net
+
   anaconda:
     image: continuumio/anaconda3:latest
     container_name: anaconda
@@ -149,3 +171,4 @@ volumes:
   kafka_data:
   mongo_data:
   postgres_data:
+  mysql_data:
