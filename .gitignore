@@ -1,0 +1,9 @@
+# Archivos temporales y comprimidos
+*.tar.gz
+*.log
+*.class
+.DS_Store
+
+# Archivos de entorno local o IDEs
+.vscode/
+.idea/
